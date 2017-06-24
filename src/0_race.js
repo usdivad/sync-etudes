@@ -76,6 +76,8 @@ function create() {
     sprite.addChild(circle);
     sprite.anchor.set(0.5);
     game.physics.arcade.enable(sprite);
+    sprite.body.collideWorldBounds = true;
+    sprite.body.setSize(50, 50);
 }
 
 function update() {
