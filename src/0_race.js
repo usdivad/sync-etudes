@@ -8,6 +8,7 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, "game", {
 
 var circle;
 var sprite;
+var activeInputPreviouslyDown = false;
 
 // Preload/create/update/render functions
 function preload() {
@@ -20,8 +21,6 @@ function create() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
     // Draw cirlce
-    // circle = new Phaser.Circle(game.world.centerX, 50, 50);
-
     circle = game.add.graphics(0, 0);
     // circle = new Phaser.Graphics(game, 0, 0);
     // circle.beginFill("rgba(150, 150, 150, 1)");
@@ -50,6 +49,26 @@ function update() {
         sprite.body.velocity.set(spriteX, spriteY);
 
         // sprite.body.velocity.set(0);
+    }
+
+
+    if (game.input.activePointer.isDown) {
+        // sprite.tint = 0xAAAAAA;
+        if (!activeInputPreviouslyDown) {
+            circle.clear();
+            circle.beginFill(0xCCCCCC, 1);
+            circle.drawCircle(0, 0, 55);
+        }
+        activeInputPreviouslyDown = true;
+    }
+    else {
+        // sprite.tint = 0x888888;
+        if (activeInputPreviouslyDown) {
+            circle.clear();
+            circle.beginFill(0x888888, 1);
+            circle.drawCircle(0, 0, 50);
+        }
+        activeInputPreviouslyDown = false;
     }
 }
 
