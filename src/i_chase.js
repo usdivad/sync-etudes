@@ -343,7 +343,12 @@ function update() {
     }
 
     // Move player sprite towards pointer at given velocity
-    game.physics.arcade.moveToPointer(sprite, spriteVel, game.input.activePointer);
+    if (game.physics.arcade.distanceToPointer(sprite, game.input.activePointer) > 5) {
+        game.physics.arcade.moveToPointer(sprite, spriteVel, game.input.activePointer);
+    }
+    else {
+        game.physics.arcade.moveToPointer(sprite, 0, game.input.activePointer);
+    }
 
     // Move NPC sprite towards player
     // (but move away if either it's running away OR if tag just happened and it's about to chase; give player some room)
