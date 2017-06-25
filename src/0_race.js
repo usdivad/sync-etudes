@@ -9,6 +9,7 @@ var circle;
 var sprite;
 var activeInputPreviouslyDown = false;
 var spriteVelMax = 120;
+var spriteVel = 0;
 
 // ---- Tone.js variables ----
 var synthP1 = new Tone.Synth({
@@ -51,13 +52,14 @@ var loop = new Tone.Loop(function(time) {
     currBeatTime = time;
     currBeatClicked = false;
 
-    // Update velocity
+    // Update sprite velocity
     if (currSyncRatio < 0.5 && currSyncDegree > 0.5) { // Don't update if degree is good and ratio is bad; means we were close to the next beat
         currSyncRatio = 0;
         currSyncDegree = 0;
     }
     else { // Do update otherwise
-        sprite.body.velocity.set(0);
+        // sprite.body.velocity.set(0);
+        spriteVel = 0;
     }
 
     // console.log("beat " + Tone.Transport.seconds);
@@ -145,6 +147,8 @@ function update() {
     //     // sprite.body.velocity.set(0);
     // }
 
+    game.physics.arcade.moveToPointer(sprite, spriteVel, game.input.activePointer);
+
     // Make sound, adjust circle attributes
     if (game.input.activePointer.isDown) {
         // sprite.tint = 0xAAAAAA;
@@ -158,8 +162,8 @@ function update() {
             // Synchronization stuff
             if (!currBeatClicked) {
                 updateSync();
-                var spriteVel = currSyncDegree * spriteVelMax;
-                game.physics.arcade.moveToPointer(sprite, spriteVel, game.input.activePointer);
+                spriteVel = currSyncDegree * spriteVelMax;
+                // game.physics.arcade.moveToPointer(sprite, spriteVel, game.input.activePointer);
                 console.log("Sync degree: " + currSyncDegree);
 
                 if (currSyncRatio < 0.5 && currSyncDegree > 0.5) {
@@ -170,7 +174,8 @@ function update() {
                 }
             }
             else {
-                sprite.body.velocity.set(0);
+                // sprite.body.velocity.set(0);
+                spriteVel = 0;
             }
         }
         else {
