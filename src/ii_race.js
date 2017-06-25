@@ -17,7 +17,7 @@ var spriteVel = 0;
 
 var circleNPC;
 var spriteNPC;
-var spriteNPCVelMax = spriteVelMax * 0.25;
+var spriteNPCVelMax = spriteVelMax * 0.75;
 var spriteNPCVel = 0;
 
 var isNPCChasingPlayer = false;
@@ -82,7 +82,7 @@ var loop = new Tone.Loop(function(time) {
     Tone.Draw.schedule(function() {
         game.stage.backgroundColor = "rgba(0, 0, 0, 1)";
         spriteNPCVel = 0;
-    }, "+8n");
+    }, "+8n+16n");
 
     // Update sync variables
     currBeatTime = time;
@@ -307,8 +307,8 @@ function update() {
     }
 
     // Update velocities
-    spriteVel = currSyncDegree * spriteVelMax;
-    spriteNPCVel = spriteNPCVelMax;
+    // spriteVel = currSyncDegree * spriteVelMax;
+    // spriteNPCVel = spriteNPCVelMax;
 
     // Adjust velocities based on who has reached the goal
     var playerHasReachedGoal = game.physics.arcade.distanceToXY(sprite, spritePlayerGoalXY[0], spritePlayerGoalXY[1]) < goalDistThreshold;
@@ -340,7 +340,7 @@ function update() {
     if (didTagJustHappen) {
         spriteVel = 0;
         spriteNPCVel = 0;
-        
+
         // Release the tag lock if necessary
         if (Tone.Transport.seconds - lastTagTime > 4) {
             didTagJustHappen = false;
