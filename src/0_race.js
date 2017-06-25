@@ -11,9 +11,9 @@ var activeInputPreviouslyDown = false;
 var spriteVelMax = 120;
 var spriteVel = 0;
 
-var npcCircle;
-var npcSprite;
-var npcSpriteVelMax = spriteVelMax * 0.75;
+var circleNPC;
+var spriteNPC;
+var spriteNPCVelMax = spriteVelMax * 0.25;
 
 // ---- Tone.js variables ----
 var synthP1 = new Tone.Synth({
@@ -30,7 +30,7 @@ var synthP1 = new Tone.Synth({
 
 var notesP1 = ["B3", "C4", "E4"];
 
-var synthNpc = new Tone.Synth({
+var synthNPC = new Tone.Synth({
     "oscillator": {
         "type": "sine"
     },
@@ -164,6 +164,17 @@ function create() {
     game.physics.arcade.enable(sprite);
     sprite.body.collideWorldBounds = true;
     sprite.body.setSize(50, 50);
+
+    // Create NPC
+    circleNPC = game.add.graphics(0, 0);
+    circleNPC.beginFill(0x888888, 1);
+    circleNPC.drawCircle(0, 0, 55);
+    spriteNPC = game.add.sprite(game.world.centerX, 30);
+    spriteNPC.addChild(circleNPC);
+    spriteNPC.anchor.set(0.5);
+    game.physics.arcade.enable(spriteNPC);
+    spriteNPC.body.collideWorldBounds = true;
+    spriteNPC.body.setSize(50, 50);
 }
 
 function update() {
@@ -183,7 +194,11 @@ function update() {
     //     // sprite.body.velocity.set(0);
     // }
 
+    // Move player sprite towards pointer at given velocity
     game.physics.arcade.moveToPointer(sprite, spriteVel, game.input.activePointer);
+
+    // Move NPC sprite towards player
+    game.physics.arcade.moveToObject(spriteNPC, sprite, spriteNPCVelMax);
 
     // Make sound, adjust circle attributes
     if (game.input.activePointer.isDown) {
