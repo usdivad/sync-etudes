@@ -89,7 +89,9 @@ var loop = new Tone.Loop(function(time) {
     // Draw metronome
     Tone.Draw.schedule(function() {
         game.stage.backgroundColor = "rgba(50, 50, 50, 1)";
-        spriteNPCVel = spriteNPCVelMax;
+        if (playerHasClicked) {
+            spriteNPCVel = spriteNPCVelMax;
+        }
     }, time);
     Tone.Draw.schedule(function() {
         game.stage.backgroundColor = "rgba(0, 0, 0, 1)";
@@ -236,7 +238,8 @@ var spriteYOffset = 50;
 var spritePlayerY = (gameHeight / 2) - spriteYOffset;
 var spriteNPCY = (gameHeight / 2) + spriteYOffset;
 var currGoal = "right";
-var goalDistThreshold = 5
+var goalDistThreshold = 5;
+var playerHasClicked = false;
 
 // ---- Phaser preload/create/update/render functions ----
 function preload() {
@@ -385,6 +388,7 @@ function update() {
     // Make sound, adjust circle attributes
     if (game.input.activePointer.isDown) {
         // sprite.tint = 0xAAAAAA;
+        playerHasClicked = true;
         if (!activeInputPreviouslyDown && !didTagJustHappen) {
             updateCircleP1(true);
 
