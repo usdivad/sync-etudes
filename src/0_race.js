@@ -42,10 +42,10 @@ var synthNPC = new Tone.Synth({
         "type": "sine"
     },
     "envelope": {
-        "attack": 2,
+        "attack": 3,
         "decay": 1,
-        "sustain": 0.5,
-        "release": 2
+        "sustain": 0,
+        "release": 3
     }
 }).toMaster();
 
@@ -63,7 +63,8 @@ var synthMetro = new Tone.Synth({
 
 var loop = new Tone.Loop(function(time) {
     // Play metronome
-    synthMetro.triggerAttackRelease("C3", "8n", time);
+    var noteMetro = isNPCChasingPlayer ? "A2" : "C3";
+    synthMetro.triggerAttackRelease(noteMetro, "8n", time);
 
     // Draw metronome
     Tone.Draw.schedule(function() {
@@ -153,6 +154,7 @@ function updateCircleP1(isClicked) {
     }
 }
 
+// Based on Phaser.Physics.ARCADE.moveToObject
 function moveAwayFromObject(displayObject, destination, speed, maxTime) {
 
     if (speed === undefined) { speed = 60; }
@@ -234,6 +236,9 @@ function update() {
             isNPCChasingPlayer = !isNPCChasingPlayer;
             didTagJustHappen = true;
             lastTagTime = Tone.Transport.seconds;
+
+            // Play a tone to signify tag
+            synthNPC.triggerAttack("E3");
         }
     }
 
@@ -251,6 +256,7 @@ function update() {
         // Release the tag lock if necessary
         if (Tone.Transport.seconds - lastTagTime > 2) {
             didTagJustHappen = false;
+            synthNPC.triggerRelease();
         }
     }
 
