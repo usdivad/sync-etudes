@@ -195,13 +195,77 @@ function updateCircleP1(isClicked) {
     }
 }
 
-// Based on Phaser.Physics.ARCADE.moveToObject
-function moveAwayFromObject(displayObject, destination, speed, maxTime) {
+// Based on Phaser.Physics.ARCADE.moveToObject.distanceToXY
+function distanceToXY(displayObject, x, y) {
 
+    var dx = displayObject.x - x;
+    var dy = displayObject.y - y;
+
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+// Based on Phaser.Physics.ARCADE.moveToObject
+var awayPrevPos = [0, 0];
+function moveAwayFromObject(displayObject, destination, speed, maxTime) {
     if (speed === undefined) { speed = 60; }
     if (maxTime === undefined) { maxTime = 0; }
 
-    var angle = Math.atan2(destination.y - displayObject.y, destination.x - displayObject.x);
+    // Angles
+    var angleDestination = Math.atan2(destination.y - displayObject.y, destination.x - displayObject.x);
+    var angleCornerTopLeft = Math.atan2(game.world.bounds.y - displayObject.y, game.world.bounds.x - displayObject.x);
+    var angleCornerTopRight = Math.atan2(game.world.bounds.y - displayObject.y, game.world.bounds.width - displayObject.x);
+    var angleCornerBottomLeft = Math.atan2(game.world.bounds.height - displayObject.y, game.world.bounds.x - displayObject.x);
+    var angleCornerBottomRight = Math.atan2(game.world.bounds.height - displayObject.y, game.world.bounds.width - displayObject.x);
+    var angles = [angleDestination, angleCornerTopLeft, angleCornerTopRight, angleCornerBottomLeft, angleCornerBottomRight];
+    // angles.sort();
+
+    // Distances
+    var distDestination = distanceToXY(displayObject, destination.x, destination.y);
+    var distCornerTopLeft = distanceToXY(displayObject, game.world.bounds.x, game.world.bounds.y);
+    var distCornerTopRight = distanceToXY(displayObject, game.world.bounds.width, game.world.bounds.y);
+    var distCornerBottomLeft = distanceToXY(displayObject, game.world.bounds.x, game.world.bounds.height);
+    var distCornerBottomRight = distanceToXY(displayObject, game.world.bounds.width, game.world.bounds.height);
+
+    // Put all targets together
+    var allTargets = [
+        {
+            "name": "destination",
+            "angle": angleDestination,
+            "distance": distDestination
+        },
+        {
+            "name": "cornerTopLeft",
+            "angle": angleCornerTopLeft,
+            "distance": distCornerTopLeft
+        },
+        {
+            "name": "cornerTopRight",
+            "angle": angleCornerTopRight,
+            "distance": distCornerTopRight
+        },
+        {
+            "name": "cornerBottomLeft",
+            "angle": angleCornerBottomLeft,
+            "distance": distCornerBottomLeft
+        },
+        {
+            "name": "cornerBottomRight",
+            "angle": angleCornerBottomRight,
+            "distance": distCornerBottomRight
+        },
+    ];
+
+    allTargets.sort(function(a, b) {
+        return a["distance"] - b["distance"];
+    });
+
+    // Weights
+    var weightMax = 0.5;
+    var weightRest = 1 - weightMax;
+    var weights = [0.4, 0.3, 0.2, 0.075, 0.025]; // Make sure these add up to 1
+    weights = [1, 0, 0, 0, 0];
+    weights = [3, 2, 1, 0.5, 0.25];
+    weights = [3, 1, 0.5, 0, 0];
 
     if (maxTime > 0)
     {
@@ -209,10 +273,36 @@ function moveAwayFromObject(displayObject, destination, speed, maxTime) {
         speed = this.distanceBetween(displayObject, destination) / (maxTime / 1000);
     }
 
-    displayObject.body.velocity.x = Math.cos(angle) * speed * -1;
-    displayObject.body.velocity.y = Math.sin(angle) * speed * -1;
+    // Trying to get around getting stuck in a corner...
+    // var worldBoundsThreshold = 25;
+    // if (Math.abs(displayObject.position.x - game.world.bounds.x) < worldBoundsThreshold
+    //     || Math.abs(displayObject.position.x - game.world.bounds.width) < worldBoundsThreshold)
+    // {
+    //     angleDestination = Math.random() * 3.14;
+    //     console.log("eyy");
+    // }
 
-    return angle;
+    displayObject.body.velocity.x = 0;
+    displayObject.body.velocity.y = 0;
+    for (var i=0; i<allTargets.length; i++) {
+        var angle = allTargets[i]["angle"];
+        var weight = weights[i];
+
+        displayObject.body.velocity.x += Math.cos(angle) * speed * weight * -1;
+        displayObject.body.velocity.y += Math.sin(angle) * speed * weight * -1;
+    }
+
+
+    // displayObject.body.velocity.x = Math.cos(angleDestination) * speed * -1;
+    // displayObject.body.velocity.y = Math.sin(angleDestination) * speed * -1;
+
+    console.log("away: speed=" + speed + ", angle=" + angleDestination);
+
+    // Original velocity setting
+    // displayObject.body.velocity.x = Math.cos(angleDestination) * speed * -1;
+    // displayObject.body.velocity.y = Math.sin(angleDestination) * speed * -1;
+
+    return angleDestination;
 }
 
 // ---- Phaser preload/create/update/render functions ----
@@ -363,6 +453,10 @@ function update() {
             moveAwayFromObject(spriteNPC, sprite, spriteNPCVel);
         }
     }
+
+    // Trying out wrapping
+    // game.world.wrap(sprite, 0, true);
+    // game.world.wrap(spriteNPC, 0, true);
 
     // --- Sound and sync ----
     // Make sound, adjust circle attributes
