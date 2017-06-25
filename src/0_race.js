@@ -29,7 +29,9 @@ var synthP1 = new Tone.Synth({
     }
 }).toMaster();
 
-var notesP1 = ["B3", "C4", "E4"];
+var notesP1 = ["C4", "E4", "B3", "C4", "A3", "B3", "C4", "D4"];
+var noteP1Idx = 0;
+var noteP1WalkStep = 3; // For drunkard's walk
 
 var synthNPC = new Tone.Synth({
     "oscillator": {
@@ -214,7 +216,21 @@ function update() {
         if (!activeInputPreviouslyDown) {
             updateCircleP1(true);
 
-            var noteP1 = notesP1[Math.floor(Math.random()*notesP1.length)];
+            // Choose next note randomly
+            noteP1Idx = Math.floor(Math.random()*notesP1.length);
+
+            // Choose next note via drunkard's walk
+            var prevNoteP1Idx = noteP1Idx;
+            var walkStepSize = Math.floor(Math.random()*noteP1WalkStep);
+            var negDice = Math.random();
+            if (negDice > 0.5) {
+                walkStepSize *= -1;
+            }
+            noteP1Idx = prevNoteP1Idx + walkStepSize;
+
+            // Update note
+            noteP1Idx = Math.max(0, Math.min(noteP1Idx, notesP1.length-1));
+            var noteP1 = notesP1[noteP1Idx];
             synthP1.triggerAttack(noteP1);
             // synthP1.triggerAttackRelease(noteP1, "16n", "+0.1");
 
