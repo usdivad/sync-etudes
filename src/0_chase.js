@@ -109,6 +109,8 @@ var transportOffset = 2;
 Tone.Transport.bpm.value = 60;
 Tone.Transport.start(transportOffset);
 
+StartAudioContext(Tone.context); // for iOS
+
 // ---- DOM stuff ----
 // window.onload = function() {
 //     document.getElementById("playBtn").addEventListener("click", function() {
