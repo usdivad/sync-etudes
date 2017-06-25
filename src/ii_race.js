@@ -353,17 +353,20 @@ function update() {
     }
     else if (playerHasReachedGoal) {
         spriteVel = 0;
+        currBeatClicked = true;
 
         // Make some noise
-        if (!npcHasReachedGoal)
+        if (!npcHasReachedGoal) {
             synthTag.triggerAttack("Eb3");
+        }
     }
     else if (npcHasReachedGoal) {
         spriteNPCVel = 0;
 
         // Make some noise
-        if (!playerHasReachedGoal)
+        if (!playerHasReachedGoal) {
             synthTag.triggerAttack("Eb3");
+        }
     }
 
     // Adjust velocities based on tag
