@@ -47,8 +47,9 @@ var loop = new Tone.Loop(function(time) {
         game.stage.backgroundColor = "rgba(0, 0, 0, 1)";
     }, "+8n");
 
-    // Update beat variable
+    // Update sync variables
     currBeatTime = time;
+    currBeatClicked = false;
 
     // Update velocity
     if (currSyncRatio < 0.5 && currSyncDegree > 0.5) { // Don't update if degree is good and ratio is bad; means we were close to the next beat
@@ -71,6 +72,7 @@ Tone.Transport.start(0);
 var currBeatTime = 0;
 var currSyncDegree = 0;
 var currSyncRatio = 0;
+var currBeatClicked = false;
 
 function updateSync() {
     var clickTime = Tone.Transport.seconds;
@@ -153,11 +155,23 @@ function update() {
 
             synthP1.triggerAttack("C4");
 
-            updateSync();
-            var spriteVel = currSyncDegree * spriteVelMax;
-            game.physics.arcade.moveToPointer(sprite, spriteVel, game.input.activePointer);
+            // Synchronization stuff
+            if (!currBeatClicked) {
+                updateSync();
+                var spriteVel = currSyncDegree * spriteVelMax;
+                game.physics.arcade.moveToPointer(sprite, spriteVel, game.input.activePointer);
+                console.log("Sync degree: " + currSyncDegree);
 
-            console.log("Sync degree: " + syncDegree);
+                if (currSyncRatio < 0.5 && currSyncDegree > 0.5) {
+                    // pass
+                }
+                else {
+                    currBeatClicked = true;
+                }
+            }
+            else {
+                sprite.body.velocity.set(0);
+            }
         }
         else {
             // synthP1.frequency.value += 0.25;
