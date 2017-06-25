@@ -28,7 +28,7 @@ var synthMetro = new Tone.Synth({
         "type": "sine"
     },
     "envelope": {
-        "attack": 0.25,
+        "attack": 0.1,
         "decay": 0.5,
         "sustain": 0.5,
         "release": 0.75
@@ -49,22 +49,41 @@ var loop = new Tone.Loop(function(time) {
 
     // Update beat variable
     currBeatTime = time;
+
+    // Update velocity
+    sprite.body.velocity.set(0);
+
+    console.log("beat " + Tone.Transport.seconds);
 }, "4n");
 
-loop.start(1);
+loop.start(0);
 
-Tone.Transport.bpm.value = 90;
-Tone.Transport.start("+0.1");
+Tone.Transport.bpm.value = 60;
+Tone.Transport.start(0);
 
-// ---- Synchronization variables ----
+// ---- Synchronization variables and functions ----
 var currBeatTime = 0;
 
 function calculateSyncDegree() {
     var clickTime = Tone.Transport.seconds;
     var timeDiff = Math.abs(clickTime - currBeatTime);
     var beatDuration = (60.0 / Tone.Transport.bpm.value) * (Tone.Transport.timeSignature / 4.0); // in seconds
-    // console.log("click: ", clickTime, "currBeat: ", currBeatTime);
-    return (timeDiff / beatDuration) * 2;
+    console.log("click: ", clickTime, "currBeat: ", currBeatTime);
+
+    var syncRatio = (beatDuration - timeDiff) / beatDuration;
+    // if (syncRatio > 0.5) {
+    //     syncRatio = 0.49;
+    // }
+    // syncRatio = syncRatio * syncRatio; // Square it to make effects more prominent
+    // syncRatio = syncRatio * 2; // Multiply by 2 to make it from 0-1
+
+    syncDegree = syncRatio;
+    syncDegree = Math.abs(0.5 - syncRatio); // Get distance from 0.5, the phase point that should be lowest scored
+    syncDegree *= 2;
+    // syncDegree = 1 - syncDegree;
+
+    console.log("timeDiff=" + timeDiff + ", beatDur=" + beatDuration +   ", ratio=" + syncRatio + ", degree=" + syncDegree);
+    return syncDegree;
 }
 
 // ---- Phaser preload/create/update/render functions ----
