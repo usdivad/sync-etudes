@@ -230,7 +230,8 @@ function update() {
     // }
 
     // See if player and NPC have caught each other, and if so "you're it!"
-    if (game.physics.arcade.distanceBetween(sprite, spriteNPC) < 25)
+    if (game.physics.arcade.distanceBetween(sprite, spriteNPC) < 40)
+    // if (game.physics.arcade.overlap(sprite, spriteNPC))
     {
         if (!didTagJustHappen) {
             isNPCChasingPlayer = !isNPCChasingPlayer;
