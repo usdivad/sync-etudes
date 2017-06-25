@@ -166,22 +166,21 @@ function updateSync() {
 function updateCircleP1(isClicked) {
     circle.clear();
     if (isClicked) {
-        var circleColor = 0x888888;
+        var circleColor = 0x999999;
         var circleSize = 50;
 
-        if (currSyncDegree > syncPerfectThreshold) {
-            circleColor = 0xDDDDDD;
-            circleSize = 55;
-        }
-        else if (currSyncDegree > 0.5) {
-            circleColor = 0xAAAAAA;
-            // circleSize = 53;
-        }
-        else if (currSyncDegree > 0.25) {
-            circleColor = 0xAAAAAA;
-        }
-        else {
-            circleColor = 0x999999;
+        if (!currBeatClicked) {
+            if (currSyncDegree > syncPerfectThreshold) {
+                circleColor = 0xDDDDDD;
+                circleSize = 55;
+            }
+            else if (currSyncDegree > 0.5) {
+                circleColor = 0xAAAAAA;
+                // circleSize = 53;
+            }
+            else if (currSyncDegree > 0.25) {
+                circleColor = 0xAAAAAA;
+            }
         }
 
         circle.beginFill(circleColor, 1);
@@ -360,7 +359,7 @@ function update() {
             noteP1Idx = Math.max(0, Math.min(noteP1Idx, notesP1.length-1));
             var noteP1 = notesP1[noteP1Idx];
 
-            if (currSyncDegree > syncPerfectThreshold) {
+            if (currSyncDegree > syncPerfectThreshold && !currBeatClicked) {
                 noteP1 = notesP1Perfect[noteP1Idx];
             }
 
