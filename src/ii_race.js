@@ -40,8 +40,8 @@ var synthP1 = new Tone.Synth({
     }
 }).toMaster();
 
-var notesP1 =        ["C4", "E4", "B3", "C4", "A3", "B3", "C4", "D4"];
-var notesP1Perfect = ["C5", "E5", "B4", "C4", "A4", "B4", "C5", "D5"];
+var notesP1 =        ["C4", "Eb4", "F4", "Bb3", "C4", "Ab3", "Bb3", "C4", "Eb4", "F4", "D4"];
+var notesP1Perfect = ["C5", "Eb5", "F5", "Bb4", "C5", "Ab4", "Bb4", "C5", "Eb5", "F5", "D5"];
 var noteP1Idx = 0;
 var noteP1WalkStep = 3; // For drunkard's walk
 
@@ -71,7 +71,7 @@ var synthMetro = new Tone.Synth({
 
 var loop = new Tone.Loop(function(time) {
     // Play metronome
-    var noteMetro = isNPCChasingPlayer ? "A2" : "C3";
+    var noteMetro = currGoal == "left" ? "Ab2" : "C3";
     synthMetro.triggerAttackRelease(noteMetro, "8n", time);
 
     // Draw metronome
