@@ -80,7 +80,7 @@ var loop = new Tone.Loop(function(time) {
     Tone.Draw.schedule(function() {
         game.stage.backgroundColor = "rgba(0, 0, 0, 1)";
         spriteNPCVel = 0;
-    }, "+8n");
+    }, "+8n+16n");
 
     // Update sync variables
     currBeatTime = time;
@@ -247,7 +247,7 @@ function create() {
     circleNPC = game.add.graphics(0, 0);
     circleNPC.beginFill(0x888888, 1);
     circleNPC.drawCircle(0, 0, 55);
-    spriteNPC = game.add.sprite(game.world.centerX, 30);
+    spriteNPC = game.add.sprite(game.world.centerX - 100, game.world.centerY - 100);
     spriteNPC.addChild(circleNPC);
     spriteNPC.anchor.set(0.5);
     game.physics.arcade.enable(spriteNPC);
