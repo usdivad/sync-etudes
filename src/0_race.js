@@ -20,6 +20,9 @@ var isNPCChasingPlayer = false;
 var didTagJustHappen = false;
 var lastTagTime = 0;
 
+var pauseButton;
+var clickAnywhereText;
+
 // ---- Tone.js variables ----
 var synthP1 = new Tone.Synth({
     "oscillator": {
@@ -99,12 +102,24 @@ var loop = new Tone.Loop(function(time) {
     // console.log("beat " + Tone.Transport.seconds);
 }, "4n");
 
-loop.start(0);
+// loop.start(0);
 
 
 var transportOffset = 2;
 Tone.Transport.bpm.value = 60;
 Tone.Transport.start(transportOffset);
+
+// ---- DOM stuff ----
+// window.onload = function() {
+//     document.getElementById("playBtn").addEventListener("click", function() {
+//         game.paused = false;
+//         console.log("ho");
+//     });
+//     document.getElementById("pauseBtn").addEventListener("click", function() {
+//         game.paused = true;
+//     });
+// };
+
 
 // ---- Synchronization variables and functions ----
 var currBeatTime = 0;
@@ -179,6 +194,8 @@ function preload() {
     // game.load.image("name", "path");
     game.scale.pageAlignHorizontally = true;
     game.scale.pageAlignVertically = true;
+
+    game.paused = true;
 }
 
 function create() {
@@ -210,6 +227,29 @@ function create() {
     game.physics.arcade.enable(spriteNPC);
     spriteNPC.body.collideWorldBounds = true;
     spriteNPC.body.setSize(50, 50);
+
+    // Pause button
+    pauseButton = game.add.text(game.world.width-60, 10, "pause", {font: "16px Arial", fill: "#888"});
+    pauseButton.inputEnabled = true;
+    pauseButton.events.onInputDown.add(function() {
+        if (!game.paused) {
+            game.paused = true;
+            loop.stop();
+            clickAnywhereText = game.add.text(game.world.centerX-72, game.world.centerY, "click anywhere to play", {font: "16px Arial", fill: "#888", align: "center"});
+        }
+    });
+
+    // Click anywhere to play
+    clickAnywhereText = game.add.text(game.world.centerX-72, game.world.centerY, "click anywhere to play", {font: "16px Arial", fill: "#888", align: "center"});
+    game.input.onDown.add(function() {
+        if (game.paused) {
+            game.paused = false;
+            loop.start(0);
+            // transportOffset = Tone.Transport.seconds;
+            currBeatTime = Tone.Transport.seconds;
+            clickAnywhereText.destroy();
+        }
+    }, self);
 }
 
 function update() {
