@@ -170,7 +170,7 @@ function updateCircleP1(isClicked) {
         var circleColor = 0x999999;
         var circleSize = 50;
 
-        if (!currBeatClicked) {
+        if (!currBeatClicked && !didTagJustHappen) {
             if (currSyncDegree > syncPerfectThreshold) {
                 circleColor = 0xDDDDDD;
                 circleSize = 55;
@@ -307,19 +307,23 @@ function update() {
         }
     }
 
-    // Conditions for whether or not tag just happened
+    // Move player and NPC depending on whether or not tag just happened
     if (didTagJustHappen) {
+        // Adjust velocities of chaser or player
+        // if (isNPCChasingPlayer) {
+        //     // moveAwayFromObject(spriteNPC, sprite, spriteNPCVel*2); // Move away from player with haste
+        //     // spriteNPCVel = 0; // Freeze the chaser (gets a bit confusing)
+        // }
+        // else {
+        //     spriteVel = 0;
+        // }
 
-        // Freeze the chaser
-        if (isNPCChasingPlayer) {
-            spriteNPCVel = 0;
-        }
-        else {
-            spriteVel = 0;
-        }
+        // Set sprite velocity to 0
+        spriteVel = 0;
+        // game.physics.arcade.moveToPointer(sprite, spriteVel, game.input.activePointer);
 
         // Release the tag lock if necessary
-        if (Tone.Transport.seconds - lastTagTime > 2) {
+        if (Tone.Transport.seconds - lastTagTime > 4) {
             didTagJustHappen = false;
             synthNPC.triggerRelease();
         }
@@ -329,18 +333,23 @@ function update() {
     game.physics.arcade.moveToPointer(sprite, spriteVel, game.input.activePointer);
 
     // Move NPC sprite towards player
-    if (isNPCChasingPlayer) {
+    // (but move away if either it's running away OR if tag just happened and it's about to chase; give player some room)
+    if (isNPCChasingPlayer && !didTagJustHappen) {
         game.physics.arcade.moveToObject(spriteNPC, sprite, spriteNPCVel);
     }
     else {
-        moveAwayFromObject(spriteNPC, sprite, spriteNPCVel);
-        // var direction = 
+        if (isNPCChasingPlayer) {
+            moveAwayFromObject(spriteNPC, sprite, spriteNPCVel*2);
+        }
+        else {
+            moveAwayFromObject(spriteNPC, sprite, spriteNPCVel);
+        }
     }
 
     // Make sound, adjust circle attributes
     if (game.input.activePointer.isDown) {
         // sprite.tint = 0xAAAAAA;
-        if (!activeInputPreviouslyDown) {
+        if (!activeInputPreviouslyDown && !didTagJustHappen) {
             updateCircleP1(true);
 
             // Choose next note randomly
