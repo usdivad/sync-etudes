@@ -13,7 +13,8 @@ var spriteVel = 0;
 
 var circleNPC;
 var spriteNPC;
-var spriteNPCVelMax = spriteVelMax * 0.25;
+var spriteNPCVelMax = spriteVelMax * 0.5;
+var spriteNPCVel = 0;
 
 // ---- Tone.js variables ----
 var synthP1 = new Tone.Synth({
@@ -61,9 +62,11 @@ var loop = new Tone.Loop(function(time) {
     // Draw metronome
     Tone.Draw.schedule(function() {
         game.stage.backgroundColor = "rgba(50, 50, 50, 1)";
+        spriteNPCVel = spriteNPCVelMax;
     }, time);
     Tone.Draw.schedule(function() {
         game.stage.backgroundColor = "rgba(0, 0, 0, 1)";
+        spriteNPCVel = 0;
     }, "+8n");
 
     // Update sync variables
@@ -203,7 +206,7 @@ function update() {
     game.physics.arcade.moveToPointer(sprite, spriteVel, game.input.activePointer);
 
     // Move NPC sprite towards player
-    game.physics.arcade.moveToObject(spriteNPC, sprite, spriteNPCVelMax);
+    game.physics.arcade.moveToObject(spriteNPC, sprite, spriteNPCVel);
 
     // Make sound, adjust circle attributes
     if (game.input.activePointer.isDown) {
