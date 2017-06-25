@@ -227,6 +227,7 @@ function update() {
                 walkStepSize *= -1;
             }
             noteP1Idx = prevNoteP1Idx + walkStepSize;
+            noteP1Idx = noteP1Idx % notesP1.length;
 
             // Update note
             noteP1Idx = Math.max(0, Math.min(noteP1Idx, notesP1.length-1));
