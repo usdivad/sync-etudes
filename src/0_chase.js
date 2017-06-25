@@ -109,18 +109,20 @@ var transportOffset = 2;
 Tone.Transport.bpm.value = 60;
 Tone.Transport.start(transportOffset);
 
-StartAudioContext(Tone.context); // for iOS
-
 // ---- DOM stuff ----
-// window.onload = function() {
-//     document.getElementById("playBtn").addEventListener("click", function() {
-//         game.paused = false;
-//         console.log("ho");
-//     });
-//     document.getElementById("pauseBtn").addEventListener("click", function() {
-//         game.paused = true;
-//     });
-// };
+window.onload = function() {
+    // document.getElementById("playBtn").addEventListener("click", function() {
+    //     game.paused = false;
+    //     console.log("ho");
+    // });
+    // document.getElementById("pauseBtn").addEventListener("click", function() {
+    //     game.paused = true;
+    // });
+
+    StartAudioContext(Tone.context).then(function() {
+        document.getElementById("debug").text = "hello pear";
+    }); // for iOS
+};
 
 
 // ---- Synchronization variables and functions ----
