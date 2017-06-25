@@ -45,7 +45,7 @@ var notesP1Perfect = ["C5", "Eb5", "F5", "Bb4", "C5", "Ab4", "Bb4", "C5", "Eb5",
 var noteP1Idx = 0;
 var noteP1WalkStep = 3; // For drunkard's walk
 
-var synthNPC = new Tone.Synth({
+var synthTag = new Tone.Synth({
     "oscillator": {
         "type": "sine"
     },
@@ -57,7 +57,7 @@ var synthNPC = new Tone.Synth({
     }
 }).toMaster();
 
-var synthNPC2 = new Tone.Synth({
+var synthTag2 = new Tone.Synth({
     "oscillator": {
         "type": "sine"
     },
@@ -345,7 +345,7 @@ function update() {
             }
 
             // Make some noise
-            synthNPC2.triggerAttack(currGoal == "left" ? "Ab3" : "G3");
+            synthTag2.triggerAttack(currGoal == "left" ? "Ab3" : "G3");
         }
     }
     else if (playerHasReachedGoal) {
@@ -353,14 +353,14 @@ function update() {
 
         // Make some noise
         if (!npcHasReachedGoal)
-            synthNPC.triggerAttack("Eb3");
+            synthTag.triggerAttack("Eb3");
     }
     else if (npcHasReachedGoal) {
         spriteNPCVel = 0;
 
         // Make some noise
         if (!playerHasReachedGoal)
-            synthNPC.triggerAttack("Eb3");
+            synthTag.triggerAttack("Eb3");
     }
 
     // Adjust velocities based on tag
@@ -371,8 +371,8 @@ function update() {
         // Release the tag lock if necessary
         if (Tone.Transport.seconds - lastTagTime > 4) {
             didTagJustHappen = false;
-            synthNPC.triggerRelease();
-            synthNPC2.triggerRelease();
+            synthTag.triggerRelease();
+            synthTag2.triggerRelease();
             console.log("released");
         }
     }

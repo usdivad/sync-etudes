@@ -43,7 +43,7 @@ var notesP1Perfect = ["C5", "E5", "B4", "C4", "A4", "B4", "C5", "D5"];
 var noteP1Idx = 0;
 var noteP1WalkStep = 3; // For drunkard's walk
 
-var synthNPC = new Tone.Synth({
+var synthTag = new Tone.Synth({
     "oscillator": {
         "type": "sine"
     },
@@ -306,7 +306,7 @@ function update() {
             lastTagTime = Tone.Transport.seconds;
 
             // Play a tone to signify tag
-            synthNPC.triggerAttack("E3");
+            synthTag.triggerAttack("E3");
         }
     }
 
@@ -328,7 +328,7 @@ function update() {
         // Release the tag lock if necessary
         if (Tone.Transport.seconds - lastTagTime > 4) {
             didTagJustHappen = false;
-            synthNPC.triggerRelease();
+            synthTag.triggerRelease();
         }
     }
 
