@@ -35,7 +35,7 @@ var synthP1 = new Tone.Synth({
     "envelope": {
         "attack": 1,
         "decay": 1,
-        "sustain": 0.5,
+        "sustain": 1,
         "release": 2
     }
 }).toMaster();
@@ -52,7 +52,7 @@ var synthNPC = new Tone.Synth({
     "envelope": {
         "attack": 3,
         "decay": 1,
-        "sustain": 0,
+        "sustain": 1,
         "release": 3
     }
 }).toMaster();
@@ -316,24 +316,39 @@ function update() {
 
     if (playerHasReachedGoal && npcHasReachedGoal) {
         if (!didTagJustHappen) {
+            // Update tag flag
             didTagJustHappen = true;
             lastTagTime = Tone.Transport.seconds;
+
+            // Reset sync vars
             currSyncRatio = 0;
             currSyncDegree = 0;
 
+            // Flip current goal
             if (currGoal == "left") {
                 currGoal = "right";
             }
             else {
                 currGoal = "left";
             }
+
+            // Make some noise
+            // synthNPC.setNote(currGoal == "left" ? "F4" : "G4");
         }
     }
     else if (playerHasReachedGoal) {
         spriteVel = 0;
+
+        // Make some noise
+        if (!npcHasReachedGoal)
+            synthNPC.triggerAttack("Eb3");
     }
     else if (npcHasReachedGoal) {
         spriteNPCVel = 0;
+
+        // Make some noise
+        if (!playerHasReachedGoal)
+            synthNPC.triggerAttack("Eb3");
     }
 
     // Adjust velocities based on tag
@@ -345,6 +360,7 @@ function update() {
         if (Tone.Transport.seconds - lastTagTime > 4) {
             didTagJustHappen = false;
             synthNPC.triggerRelease();
+            console.log("released");
         }
     }
 

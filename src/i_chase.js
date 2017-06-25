@@ -33,7 +33,7 @@ var synthP1 = new Tone.Synth({
     "envelope": {
         "attack": 1,
         "decay": 1,
-        "sustain": 0.5,
+        "sustain": 1,
         "release": 2
     }
 }).toMaster();
@@ -50,7 +50,7 @@ var synthNPC = new Tone.Synth({
     "envelope": {
         "attack": 3,
         "decay": 1,
-        "sustain": 0,
+        "sustain": 1,
         "release": 3
     }
 }).toMaster();
