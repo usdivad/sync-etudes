@@ -1,4 +1,4 @@
-// Phaser variables
+// ---- Phaser variables ----
 var game = new Phaser.Game(800, 600, Phaser.AUTO, "game", {
     "preload": preload,
     "create": create,
@@ -8,8 +8,9 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, "game", {
 var circle;
 var sprite;
 var activeInputPreviouslyDown = false;
+var spriteVelMax = 120;
 
-// Tone.js variables
+// ---- Tone.js variables ----
 var synthP1 = new Tone.Synth({
     "oscillator": {
         "type": "sine"
@@ -45,14 +46,28 @@ var loop = new Tone.Loop(function(time) {
     Tone.Draw.schedule(function() {
         game.stage.backgroundColor = "rgba(0, 0, 0, 1)";
     }, "+8n");
+
+    // Update beat variable
+    currBeatTime = time;
 }, "4n");
 
 loop.start(1);
 
-Tone.Transport.bpm.value = 120;
+Tone.Transport.bpm.value = 90;
 Tone.Transport.start("+0.1");
 
-// Phaser preload/create/update/render functions
+// ---- Synchronization variables ----
+var currBeatTime = 0;
+
+function calculateSyncDegree() {
+    var clickTime = Tone.Transport.seconds;
+    var timeDiff = Math.abs(clickTime - currBeatTime);
+    var beatDuration = (60.0 / Tone.Transport.bpm.value) * (Tone.Transport.timeSignature / 4.0); // in seconds
+    // console.log("click: ", clickTime, "currBeat: ", currBeatTime);
+    return (timeDiff / beatDuration) * 2;
+}
+
+// ---- Phaser preload/create/update/render functions ----
 function preload() {
     // game.load.image("name", "path");
     game.scale.pageAlignHorizontally = true;
@@ -64,7 +79,7 @@ function create() {
     game.stage.backgroundColor = "rgba(0, 0, 0, 1)";
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
-    // Draw cirlce
+    // Draw circle
     circle = game.add.graphics(0, 0);
     // circle = new Phaser.Graphics(game, 0, 0);
     // circle.beginFill("rgba(150, 150, 150, 1)");
@@ -72,7 +87,7 @@ function create() {
     circle.drawCircle(0, 0, 50);
 
     // Create sprite from circle
-    sprite = game.add.sprite(game.world.centerX, game.world.centerY);
+    sprite = game.add.sprite(game.world.centerX, game.world.height);
     sprite.addChild(circle);
     sprite.anchor.set(0.5);
     game.physics.arcade.enable(sprite);
@@ -82,20 +97,20 @@ function create() {
 
 function update() {
     // Accelerate towards the pointer if pointer down, otherwise decelerate
-    if (game.physics.arcade.distanceToPointer(sprite, game.input.activePointer) > 50
-        && game.input.activePointer.isDown) {
-        game.physics.arcade.accelerateToPointer(sprite, game.input.activePointer, 240);
-        // game.physics.arcade.moveToPointer(sprite, 240, game.input.activePointer, 500);
-    }
-    else {
-        // sprite.body.acceleration.set(0);
+    // if (game.physics.arcade.distanceToPointer(sprite, game.input.activePointer) > 50
+    //     && game.input.activePointer.isDown) {
+    //     game.physics.arcade.accelerateToPointer(sprite, game.input.activePointer, 240);
+    //     // game.physics.arcade.moveToPointer(sprite, 240, game.input.activePointer, 500);
+    // }
+    // else {
+    //     // sprite.body.acceleration.set(0);
 
-        var spriteX = sprite.body.velocity.getMagnitude() == 0 ? 0 : sprite.body.velocity.x * 0.8;
-        var spriteY = sprite.body.velocity.getMagnitude() == 0 ? 0 : sprite.body.velocity.y * 0.8;
-        sprite.body.velocity.set(spriteX, spriteY);
+    //     var spriteX = sprite.body.velocity.getMagnitude() == 0 ? 0 : sprite.body.velocity.x * 0.8;
+    //     var spriteY = sprite.body.velocity.getMagnitude() == 0 ? 0 : sprite.body.velocity.y * 0.8;
+    //     sprite.body.velocity.set(spriteX, spriteY);
 
-        // sprite.body.velocity.set(0);
-    }
+    //     // sprite.body.velocity.set(0);
+    // }
 
     // Make sound, adjust circle attributes
     if (game.input.activePointer.isDown) {
@@ -106,6 +121,12 @@ function update() {
             circle.drawCircle(0, 0, 55);
 
             synthP1.triggerAttack("C4");
+
+            var syncDegree = calculateSyncDegree();
+            var spriteVel = syncDegree * spriteVelMax;
+            game.physics.arcade.moveToPointer(sprite, spriteVel, game.input.activePointer);
+
+            console.log("Sync degree: " + syncDegree);
         }
         else {
             // synthP1.frequency.value += 0.25;
