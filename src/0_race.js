@@ -11,6 +11,10 @@ var activeInputPreviouslyDown = false;
 var spriteVelMax = 120;
 var spriteVel = 0;
 
+var npcCircle;
+var npcSprite;
+var npcSpriteVelMax = spriteVelMax * 0.75;
+
 // ---- Tone.js variables ----
 var synthP1 = new Tone.Synth({
     "oscillator": {
@@ -18,6 +22,20 @@ var synthP1 = new Tone.Synth({
     },
     "envelope": {
         "attack": 1,
+        "decay": 1,
+        "sustain": 0.5,
+        "release": 2
+    }
+}).toMaster();
+
+var notesP1 = ["B3", "C4", "E4"];
+
+var synthNpc = new Tone.Synth({
+    "oscillator": {
+        "type": "sine"
+    },
+    "envelope": {
+        "attack": 2,
         "decay": 1,
         "sustain": 0.5,
         "release": 2
@@ -60,6 +78,14 @@ var loop = new Tone.Loop(function(time) {
     else { // Do update otherwise
         // sprite.body.velocity.set(0);
         spriteVel = 0;
+
+        // Redraw circle
+        circle.clear();
+        circle.beginFill(0x888888, 1);
+        circle.drawCircle(0, 0, 50);
+
+        // Release synth
+        synthP1.triggerRelease();
     }
 
     // console.log("beat " + Tone.Transport.seconds);
@@ -157,7 +183,9 @@ function update() {
             circle.beginFill(0xCCCCCC, 1);
             circle.drawCircle(0, 0, 55);
 
-            synthP1.triggerAttack("C4");
+            var noteP1 = notesP1[Math.floor(Math.random()*notesP1.length)];
+            synthP1.triggerAttack(noteP1);
+            // synthP1.triggerAttackRelease(noteP1, "16n", "+0.1");
 
             // Synchronization stuff
             if (!currBeatClicked) {
