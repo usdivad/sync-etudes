@@ -1,5 +1,9 @@
+// ---- ii. race ----
+var finishLineLeftX = 30;
+var finishLineRightX = window.innerWidth - 30;
+
 // ---- Phaser variables ----
-var game = new Phaser.Game(800, 600, Phaser.AUTO, "game", {
+var game = new Phaser.Game(window.innerWidth, window.innerHeight*0.75, Phaser.AUTO, "game", {
     "preload": preload,
     "create": create,
     "update": update,
@@ -36,7 +40,8 @@ var synthP1 = new Tone.Synth({
     }
 }).toMaster();
 
-var notesP1 = ["C4", "E4", "B3", "C4", "A3", "B3", "C4", "D4"];
+var notesP1 =        ["C4", "E4", "B3", "C4", "A3", "B3", "C4", "D4"];
+var notesP1Perfect = ["C5", "E5", "B4", "C4", "A4", "B4", "C5", "D5"];
 var noteP1Idx = 0;
 var noteP1WalkStep = 3; // For drunkard's walk
 
@@ -130,6 +135,7 @@ var currBeatTime = 0;
 var currSyncDegree = 0;
 var currSyncRatio = 0;
 var currBeatClicked = false;
+var syncPerfectThreshold = 0.6;
 
 function updateSync() {
     var clickTime = Tone.Transport.seconds;
@@ -151,6 +157,7 @@ function updateSync() {
     syncDegree = Math.abs(0.5 - syncRatio); // Get distance from 0.5, the phase point that should be lowest scored
     syncDegree *= 2;
     // syncDegree = 1 - syncDegree;
+    syncDegree = Math.max(0, Math.min(syncDegree, 0.99));
 
     // Update the vars
     currSyncRatio = syncRatio;
@@ -164,8 +171,25 @@ function updateSync() {
 function updateCircleP1(isClicked) {
     circle.clear();
     if (isClicked) {
-        circle.beginFill(0xCCCCCC, 1);
-        circle.drawCircle(0, 0, 55);
+        var circleColor = 0x999999;
+        var circleSize = 50;
+
+        if (!currBeatClicked && !didTagJustHappen) {
+            if (currSyncDegree > syncPerfectThreshold) {
+                circleColor = 0xDDDDDD;
+                circleSize = 55;
+            }
+            else if (currSyncDegree > 0.5) {
+                circleColor = 0xAAAAAA;
+                // circleSize = 53;
+            }
+            else if (currSyncDegree > 0.25) {
+                circleColor = 0xAAAAAA;
+            }
+        }
+
+        circle.beginFill(circleColor, 1);
+        circle.drawCircle(0, 0, circleSize);
     }
     else {
         circle.beginFill(0x888888, 1);
@@ -214,7 +238,7 @@ function create() {
     updateCircleP1(false);
 
     // Create sprite from circle
-    sprite = game.add.sprite(game.world.centerX, game.world.height);
+    sprite = game.add.sprite(30, game.world.centerY - 40);
     sprite.addChild(circle);
     sprite.anchor.set(0.5);
     game.physics.arcade.enable(sprite);
@@ -225,7 +249,7 @@ function create() {
     circleNPC = game.add.graphics(0, 0);
     circleNPC.beginFill(0x888888, 1);
     circleNPC.drawCircle(0, 0, 55);
-    spriteNPC = game.add.sprite(game.world.centerX, 30);
+    spriteNPC = game.add.sprite(30, game.world.centerY + 40);
     spriteNPC.addChild(circleNPC);
     spriteNPC.anchor.set(0.5);
     game.physics.arcade.enable(spriteNPC);
@@ -257,70 +281,14 @@ function create() {
 }
 
 function update() {
-    // Accelerate towards the pointer if pointer down, otherwise decelerate
-    // if (game.physics.arcade.distanceToPointer(sprite, game.input.activePointer) > 50
-    //     && game.input.activePointer.isDown) {
-    //     game.physics.arcade.accelerateToPointer(sprite, game.input.activePointer, 240);
-    //     // game.physics.arcade.moveToPointer(sprite, 240, game.input.activePointer, 500);
-    // }
-    // else {
-    //     // sprite.body.acceleration.set(0);
+    // ---- Movement ----
+    // TODO
 
-    //     var spriteX = sprite.body.velocity.getMagnitude() == 0 ? 0 : sprite.body.velocity.x * 0.8;
-    //     var spriteY = sprite.body.velocity.getMagnitude() == 0 ? 0 : sprite.body.velocity.y * 0.8;
-    //     sprite.body.velocity.set(spriteX, spriteY);
-
-    //     // sprite.body.velocity.set(0);
-    // }
-
-    // See if player and NPC have caught each other, and if so "you're it!"
-    if (game.physics.arcade.distanceBetween(sprite, spriteNPC) < 40)
-    // if (game.physics.arcade.overlap(sprite, spriteNPC))
-    {
-        if (!didTagJustHappen) {
-            isNPCChasingPlayer = !isNPCChasingPlayer;
-            didTagJustHappen = true;
-            lastTagTime = Tone.Transport.seconds;
-
-            // Play a tone to signify tag
-            synthNPC.triggerAttack("E3");
-        }
-    }
-
-    // Conditions for whether or not tag just happened
-    if (didTagJustHappen) {
-
-        // Freeze the chaser
-        if (isNPCChasingPlayer) {
-            spriteNPCVel = 0;
-        }
-        else {
-            spriteVel = 0;
-        }
-
-        // Release the tag lock if necessary
-        if (Tone.Transport.seconds - lastTagTime > 2) {
-            didTagJustHappen = false;
-            synthNPC.triggerRelease();
-        }
-    }
-
-    // Move player sprite towards pointer at given velocity
-    game.physics.arcade.moveToPointer(sprite, spriteVel, game.input.activePointer);
-
-    // Move NPC sprite towards player
-    if (isNPCChasingPlayer) {
-        game.physics.arcade.moveToObject(spriteNPC, sprite, spriteNPCVel);
-    }
-    else {
-        moveAwayFromObject(spriteNPC, sprite, spriteNPCVel);
-        // var direction = 
-    }
-
+    // --- Sound and sync ----
     // Make sound, adjust circle attributes
     if (game.input.activePointer.isDown) {
         // sprite.tint = 0xAAAAAA;
-        if (!activeInputPreviouslyDown) {
+        if (!activeInputPreviouslyDown && !didTagJustHappen) {
             updateCircleP1(true);
 
             // Choose next note randomly
@@ -336,9 +304,14 @@ function update() {
             noteP1Idx = prevNoteP1Idx + walkStepSize;
             noteP1Idx = noteP1Idx % notesP1.length;
 
-            // Update note
+            // Update and trigger note
             noteP1Idx = Math.max(0, Math.min(noteP1Idx, notesP1.length-1));
             var noteP1 = notesP1[noteP1Idx];
+
+            if (currSyncDegree > syncPerfectThreshold && !currBeatClicked) {
+                noteP1 = notesP1Perfect[noteP1Idx];
+            }
+
             synthP1.triggerAttack(noteP1);
             // synthP1.triggerAttackRelease(noteP1, "16n", "+0.1");
 

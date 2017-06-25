@@ -1,3 +1,5 @@
+// ---- i. chase ----
+
 // ---- Phaser variables ----
 var game = new Phaser.Game(window.innerWidth, window.innerHeight*0.75, Phaser.AUTO, "game", {
     "preload": preload,
@@ -277,6 +279,7 @@ function create() {
 }
 
 function update() {
+    // ---- Movement ----
     // Accelerate towards the pointer if pointer down, otherwise decelerate
     // if (game.physics.arcade.distanceToPointer(sprite, game.input.activePointer) > 50
     //     && game.input.activePointer.isDown) {
@@ -346,6 +349,7 @@ function update() {
         }
     }
 
+    // --- Sound and sync ----
     // Make sound, adjust circle attributes
     if (game.input.activePointer.isDown) {
         // sprite.tint = 0xAAAAAA;
