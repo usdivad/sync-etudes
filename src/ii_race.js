@@ -1,9 +1,9 @@
 // ---- ii. race ----
-var finishLineLeftX = 30;
-var finishLineRightX = window.innerWidth - 30;
 
 // ---- Phaser variables ----
-var game = new Phaser.Game(window.innerWidth, window.innerHeight*0.75, Phaser.AUTO, "game", {
+var gameWidth = window.innerWidth;
+var gameHeight = window.innerHeight*0.75;
+var game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, "game", {
     "preload": preload,
     "create": create,
     "update": update,
@@ -217,6 +217,15 @@ function moveAwayFromObject(displayObject, destination, speed, maxTime) {
     return angle;
 }
 
+// ---- Etude-specific variables ----
+var goalLeftX = 30;
+var goalRightX = window.innerWidth - 5;
+var spriteYOffset = 50;
+var spritePlayerY = (gameHeight / 2) - spriteYOffset;
+var spriteNPCY = (gameHeight / 2) + spriteYOffset;
+var currGoal = "right";
+var goalDistThreshold = 5
+
 // ---- Phaser preload/create/update/render functions ----
 function preload() {
     // game.load.image("name", "path");
@@ -238,7 +247,7 @@ function create() {
     updateCircleP1(false);
 
     // Create sprite from circle
-    sprite = game.add.sprite(30, game.world.centerY - 40);
+    sprite = game.add.sprite(goalLeftX, spritePlayerY);
     sprite.addChild(circle);
     sprite.anchor.set(0.5);
     game.physics.arcade.enable(sprite);
@@ -249,7 +258,7 @@ function create() {
     circleNPC = game.add.graphics(0, 0);
     circleNPC.beginFill(0x888888, 1);
     circleNPC.drawCircle(0, 0, 55);
-    spriteNPC = game.add.sprite(30, game.world.centerY + 40);
+    spriteNPC = game.add.sprite(goalLeftX, spriteNPCY);
     spriteNPC.addChild(circleNPC);
     spriteNPC.anchor.set(0.5);
     game.physics.arcade.enable(spriteNPC);
@@ -282,7 +291,44 @@ function create() {
 
 function update() {
     // ---- Movement ----
-    // TODO
+    var spritePlayerGoalXY = [0, spritePlayerY];
+    var spriteNPCGoalXY = [0, spriteNPCY];
+    
+    if (currGoal == "left") { // Left
+        spritePlayerGoalXY[0] = goalLeftX;
+        spriteNPCGoalXY[0] = goalLeftX;
+    }
+    else if (currGoal == "right") { // Right
+        spritePlayerGoalXY[0] = goalRightX;
+        spriteNPCGoalXY[0] = goalRightX;
+    }
+    else { // Should never happen
+        currGoal = "right";
+    }
+
+    // Update velocities
+    spriteVel = currSyncDegree * spriteVelMax;
+    spriteNPCVel = spriteNPCVelMax;
+
+    // Adjust velocities based on who has reached the goal
+    var playerHasReachedGoal = game.physics.arcade.distanceToXY(sprite, spritePlayerGoalXY[0], spritePlayerGoalXY[1]) < goalDistThreshold;
+    var npcHasReachedGoal = game.physics.arcade.distanceToXY(sprite, spriteNPCGoalXY[0], spriteNPCGoalXY[1]) < goalDistThreshold;
+
+    if (playerHasReachedGoal && npcHasReachedGoal) {
+        didTagJustHappen = true;
+        spriteVel = 0;
+        spriteNPCVel = 0;
+    }
+    else if (playerHasReachedGoal) {
+        spriteVel = 0;
+    }
+    else if (npcHasReachedGoal) {
+        spriteNPCVel = 0;
+    }
+
+    // Move it!
+    game.physics.arcade.moveToXY(sprite, spritePlayerGoalXY[0], spritePlayerGoalXY[1], spriteVel);
+    game.physics.arcade.moveToXY(spriteNPC, spriteNPCGoalXY[0], spriteNPCGoalXY[1], spriteNPCVel);
 
     // --- Sound and sync ----
     // Make sound, adjust circle attributes
