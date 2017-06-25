@@ -17,7 +17,7 @@ var spriteVel = 0;
 
 var circleNPC;
 var spriteNPC;
-var spriteNPCVelMax = spriteVelMax * 0.5;
+var spriteNPCVelMax = spriteVelMax * 0.25;
 var spriteNPCVel = 0;
 
 var isNPCChasingPlayer = false;
@@ -219,7 +219,7 @@ function moveAwayFromObject(displayObject, destination, speed, maxTime) {
 
 // ---- Etude-specific variables ----
 var goalLeftX = 30;
-var goalRightX = window.innerWidth - 5;
+var goalRightX = gameWidth - 50;
 var spriteYOffset = 50;
 var spritePlayerY = (gameHeight / 2) - spriteYOffset;
 var spriteNPCY = (gameHeight / 2) + spriteYOffset;
@@ -312,12 +312,18 @@ function update() {
 
     // Adjust velocities based on who has reached the goal
     var playerHasReachedGoal = game.physics.arcade.distanceToXY(sprite, spritePlayerGoalXY[0], spritePlayerGoalXY[1]) < goalDistThreshold;
-    var npcHasReachedGoal = game.physics.arcade.distanceToXY(sprite, spriteNPCGoalXY[0], spriteNPCGoalXY[1]) < goalDistThreshold;
+    var npcHasReachedGoal = game.physics.arcade.distanceToXY(spriteNPC, spriteNPCGoalXY[0], spriteNPCGoalXY[1]) < goalDistThreshold;
 
     if (playerHasReachedGoal && npcHasReachedGoal) {
         didTagJustHappen = true;
         spriteVel = 0;
         spriteNPCVel = 0;
+        if (currGoal == "left") {
+            currGoal = "right";
+        }
+        else {
+            currGoal = "left";
+        }
     }
     else if (playerHasReachedGoal) {
         spriteVel = 0;
