@@ -153,6 +153,7 @@ function updateSync() {
     syncDegree = Math.abs(0.5 - syncRatio); // Get distance from 0.5, the phase point that should be lowest scored
     syncDegree *= 2;
     // syncDegree = 1 - syncDegree;
+    syncDegree = Math.max(0, Math.min(syncDegree, 0.99));
 
     // Update the vars
     currSyncRatio = syncRatio;
