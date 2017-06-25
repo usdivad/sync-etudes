@@ -16,6 +16,10 @@ var spriteNPC;
 var spriteNPCVelMax = spriteVelMax * 0.5;
 var spriteNPCVel = 0;
 
+var isNPCChasingPlayer = false;
+var didTagJustHappen = false;
+var lastTagTime = 0;
+
 // ---- Tone.js variables ----
 var synthP1 = new Tone.Synth({
     "oscillator": {
@@ -53,13 +57,13 @@ var synthMetro = new Tone.Synth({
         "attack": 0.1,
         "decay": 0.5,
         "sustain": 0.5,
-        "release": 0.75
+        "release": 2
     }
 }).toMaster();
 
 var loop = new Tone.Loop(function(time) {
     // Play metronome
-    synthMetro.triggerAttackRelease("C2", "8n", time);
+    synthMetro.triggerAttackRelease("C3", "8n", time);
 
     // Draw metronome
     Tone.Draw.schedule(function() {
@@ -149,6 +153,25 @@ function updateCircleP1(isClicked) {
     }
 }
 
+function moveAwayFromObject(displayObject, destination, speed, maxTime) {
+
+    if (speed === undefined) { speed = 60; }
+    if (maxTime === undefined) { maxTime = 0; }
+
+    var angle = Math.atan2(destination.y - displayObject.y, destination.x - displayObject.x);
+
+    if (maxTime > 0)
+    {
+        //  We know how many pixels we need to move, but how fast?
+        speed = this.distanceBetween(displayObject, destination) / (maxTime / 1000);
+    }
+
+    displayObject.body.velocity.x = Math.cos(angle) * speed * -1;
+    displayObject.body.velocity.y = Math.sin(angle) * speed * -1;
+
+    return angle;
+}
+
 // ---- Phaser preload/create/update/render functions ----
 function preload() {
     // game.load.image("name", "path");
@@ -204,11 +227,44 @@ function update() {
     //     // sprite.body.velocity.set(0);
     // }
 
+    // See if player and NPC have caught each other, and if so "you're it!"
+    if (game.physics.arcade.distanceBetween(sprite, spriteNPC) < 25)
+    {
+        if (!didTagJustHappen) {
+            isNPCChasingPlayer = !isNPCChasingPlayer;
+            didTagJustHappen = true;
+            lastTagTime = Tone.Transport.seconds;
+        }
+    }
+
+    // Conditions for whether or not tag just happened
+    if (didTagJustHappen) {
+
+        // Freeze the chaser
+        if (isNPCChasingPlayer) {
+            spriteNPCVel = 0;
+        }
+        else {
+            spriteVel = 0;
+        }
+
+        // Release the tag lock if necessary
+        if (Tone.Transport.seconds - lastTagTime > 2) {
+            didTagJustHappen = false;
+        }
+    }
+
     // Move player sprite towards pointer at given velocity
     game.physics.arcade.moveToPointer(sprite, spriteVel, game.input.activePointer);
 
     // Move NPC sprite towards player
-    game.physics.arcade.moveToObject(spriteNPC, sprite, spriteNPCVel);
+    if (isNPCChasingPlayer) {
+        game.physics.arcade.moveToObject(spriteNPC, sprite, spriteNPCVel);
+    }
+    else {
+        moveAwayFromObject(spriteNPC, sprite, spriteNPCVel);
+        // var direction = 
+    }
 
     // Make sound, adjust circle attributes
     if (game.input.activePointer.isDown) {
