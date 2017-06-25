@@ -315,14 +315,18 @@ function update() {
     var npcHasReachedGoal = game.physics.arcade.distanceToXY(spriteNPC, spriteNPCGoalXY[0], spriteNPCGoalXY[1]) < goalDistThreshold;
 
     if (playerHasReachedGoal && npcHasReachedGoal) {
-        didTagJustHappen = true;
-        spriteVel = 0;
-        spriteNPCVel = 0;
-        if (currGoal == "left") {
-            currGoal = "right";
-        }
-        else {
-            currGoal = "left";
+        if (!didTagJustHappen) {
+            didTagJustHappen = true;
+            lastTagTime = Tone.Transport.seconds;
+            currSyncRatio = 0;
+            currSyncDegree = 0;
+
+            if (currGoal == "left") {
+                currGoal = "right";
+            }
+            else {
+                currGoal = "left";
+            }
         }
     }
     else if (playerHasReachedGoal) {
@@ -330,6 +334,18 @@ function update() {
     }
     else if (npcHasReachedGoal) {
         spriteNPCVel = 0;
+    }
+
+    // Adjust velocities based on tag
+    if (didTagJustHappen) {
+        spriteVel = 0;
+        spriteNPCVel = 0;
+        
+        // Release the tag lock if necessary
+        if (Tone.Transport.seconds - lastTagTime > 4) {
+            didTagJustHappen = false;
+            synthNPC.triggerRelease();
+        }
     }
 
     // Move it!
