@@ -51,9 +51,15 @@ var loop = new Tone.Loop(function(time) {
     currBeatTime = time;
 
     // Update velocity
-    sprite.body.velocity.set(0);
+    if (currSyncRatio < 0.5 && currSyncDegree > 0.5) { // Don't update if degree is good and ratio is bad; means we were close to the next beat
+        currSyncRatio = 0;
+        currSyncDegree = 0;
+    }
+    else { // Do update otherwise
+        sprite.body.velocity.set(0);
+    }
 
-    console.log("beat " + Tone.Transport.seconds);
+    // console.log("beat " + Tone.Transport.seconds);
 }, "4n");
 
 loop.start(0);
@@ -63,8 +69,10 @@ Tone.Transport.start(0);
 
 // ---- Synchronization variables and functions ----
 var currBeatTime = 0;
+var currSyncDegree = 0;
+var currSyncRatio = 0;
 
-function calculateSyncDegree() {
+function updateSync() {
     var clickTime = Tone.Transport.seconds;
     var timeDiff = Math.abs(clickTime - currBeatTime);
     var beatDuration = (60.0 / Tone.Transport.bpm.value) * (Tone.Transport.timeSignature / 4.0); // in seconds
@@ -82,8 +90,12 @@ function calculateSyncDegree() {
     syncDegree *= 2;
     // syncDegree = 1 - syncDegree;
 
+    // Update the vars
+    currSyncRatio = syncRatio;
+    currSyncDegree = syncDegree;
+
     console.log("timeDiff=" + timeDiff + ", beatDur=" + beatDuration +   ", ratio=" + syncRatio + ", degree=" + syncDegree);
-    return syncDegree;
+    // return syncDegree;
 }
 
 // ---- Phaser preload/create/update/render functions ----
@@ -141,8 +153,8 @@ function update() {
 
             synthP1.triggerAttack("C4");
 
-            var syncDegree = calculateSyncDegree();
-            var spriteVel = syncDegree * spriteVelMax;
+            updateSync();
+            var spriteVel = currSyncDegree * spriteVelMax;
             game.physics.arcade.moveToPointer(sprite, spriteVel, game.input.activePointer);
 
             console.log("Sync degree: " + syncDegree);
