@@ -314,9 +314,6 @@ function update() {
             isNPCChasingPlayer = !isNPCChasingPlayer;
             didTagJustHappen = true;
             lastTagTime = Tone.Transport.seconds;
-
-            // Play a tone to signify tag
-            synthTag.triggerAttack("E3");
         }
     }
 
@@ -334,6 +331,9 @@ function update() {
         // Set sprite velocity to 0
         spriteVel = 0;
         // game.physics.arcade.moveToPointer(sprite, spriteVel, game.input.activePointer);
+
+        // Play a tone to signify tag
+        synthTag.triggerAttack("E3");
 
         // Release the tag lock if necessary
         if (Tone.Transport.seconds - lastTagTime > 4) {

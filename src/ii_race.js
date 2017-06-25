@@ -358,10 +358,6 @@ function update() {
                 currGoal = "left";
             }
         }
-
-        // Make some MORE noise
-        synthTag2.triggerAttack(currGoal == "left" ? "Ab3" : "G3");
-        synthTag.triggerAttack("Eb3");
     }
     else if (playerHasReachedGoal) {
         spriteVel = 0;
@@ -381,6 +377,10 @@ function update() {
     if (didTagJustHappen) {
         spriteVel = 0;
         spriteNPCVel = 0;
+
+        // Make some MORE noise
+        synthTag2.triggerAttack(currGoal == "left" ? "Ab3" : "G3");
+        synthTag.triggerAttack("Eb3");
 
         // Release the tag lock if necessary
         if (Tone.Transport.seconds - lastTagTime > 4) {
