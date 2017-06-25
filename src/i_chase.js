@@ -1,5 +1,5 @@
 // ---- Phaser variables ----
-var game = new Phaser.Game(800, 600, Phaser.AUTO, "game", {
+var game = new Phaser.Game(window.innerWidth, window.innerHeight*0.75, Phaser.AUTO, "game", {
     "preload": preload,
     "create": create,
     "update": update,
