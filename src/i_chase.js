@@ -259,9 +259,19 @@ function create() {
     pauseButton.inputEnabled = true;
     pauseButton.events.onInputDown.add(function() {
         if (!game.paused) {
+            // Pause game state
             game.paused = true;
-            loop.stop();
+
+            // Add "click anywhere" menu
             clickAnywhereText = game.add.text(game.world.centerX-72, game.world.centerY, "click anywhere to play", {font: "16px Arial", fill: "#888", align: "center"});
+
+            // Stop metro loop
+            loop.stop();
+
+            // Trigger synth releases
+            synthP1.triggerRelease();
+            synthTag.triggerRelease();
+            synthMetro.triggerRelease();
         }
     });
 

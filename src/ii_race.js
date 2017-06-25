@@ -285,9 +285,20 @@ function create() {
     pauseButton.inputEnabled = true;
     pauseButton.events.onInputDown.add(function() {
         if (!game.paused) {
+            // Pause game state
             game.paused = true;
-            loop.stop();
+
+            // Add "click anywhere" menu
             clickAnywhereText = game.add.text(game.world.centerX-72, game.world.centerY, "click anywhere to play", {font: "16px Arial", fill: "#888", align: "center"});
+
+            // Stop metro loop
+            loop.stop();
+
+            // Trigger synth releases
+            synthP1.triggerRelease();
+            synthTag.triggerRelease();
+            synthTag2.triggerRelease();
+            synthMetro.triggerRelease();
         }
     });
 
@@ -346,27 +357,24 @@ function update() {
             else {
                 currGoal = "left";
             }
-
-            // Make some noise
-            synthTag2.triggerAttack(currGoal == "left" ? "Ab3" : "G3");
         }
+
+        // Make some MORE noise
+        synthTag2.triggerAttack(currGoal == "left" ? "Ab3" : "G3");
+        synthTag.triggerAttack("Eb3");
     }
     else if (playerHasReachedGoal) {
         spriteVel = 0;
         currBeatClicked = true;
 
         // Make some noise
-        if (!npcHasReachedGoal) {
-            synthTag.triggerAttack("Eb3");
-        }
+        synthTag.triggerAttack("Eb3");
     }
     else if (npcHasReachedGoal) {
         spriteNPCVel = 0;
 
         // Make some noise
-        if (!playerHasReachedGoal) {
-            synthTag.triggerAttack("Eb3");
-        }
+        synthTag.triggerAttack("Eb3");
     }
 
     // Adjust velocities based on tag
