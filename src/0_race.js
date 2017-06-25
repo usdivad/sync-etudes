@@ -80,9 +80,7 @@ var loop = new Tone.Loop(function(time) {
         spriteVel = 0;
 
         // Redraw circle
-        circle.clear();
-        circle.beginFill(0x888888, 1);
-        circle.drawCircle(0, 0, 50);
+        updateCircleP1(false);
 
         // Release synth
         synthP1.triggerRelease();
@@ -128,6 +126,19 @@ function updateSync() {
     // return syncDegree;
 }
 
+// ---- Phaser helper functions ----
+function updateCircleP1(isClicked) {
+    circle.clear();
+    if (isClicked) {
+        circle.beginFill(0xCCCCCC, 1);
+        circle.drawCircle(0, 0, 55);
+    }
+    else {
+        circle.beginFill(0x888888, 1);
+        circle.drawCircle(0, 0, 50);
+    }
+}
+
 // ---- Phaser preload/create/update/render functions ----
 function preload() {
     // game.load.image("name", "path");
@@ -144,8 +155,7 @@ function create() {
     circle = game.add.graphics(0, 0);
     // circle = new Phaser.Graphics(game, 0, 0);
     // circle.beginFill("rgba(150, 150, 150, 1)");
-    circle.beginFill(0x888888, 1);
-    circle.drawCircle(0, 0, 50);
+    updateCircleP1(false);
 
     // Create sprite from circle
     sprite = game.add.sprite(game.world.centerX, game.world.height);
@@ -179,9 +189,7 @@ function update() {
     if (game.input.activePointer.isDown) {
         // sprite.tint = 0xAAAAAA;
         if (!activeInputPreviouslyDown) {
-            circle.clear();
-            circle.beginFill(0xCCCCCC, 1);
-            circle.drawCircle(0, 0, 55);
+            updateCircleP1(true);
 
             var noteP1 = notesP1[Math.floor(Math.random()*notesP1.length)];
             synthP1.triggerAttack(noteP1);
@@ -214,9 +222,7 @@ function update() {
     else {
         // sprite.tint = 0x888888;
         if (activeInputPreviouslyDown) {
-            circle.clear();
-            circle.beginFill(0x888888, 1);
-            circle.drawCircle(0, 0, 50);
+            updateCircleP1(false);
 
             synthP1.triggerRelease();
         }
