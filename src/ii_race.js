@@ -57,6 +57,18 @@ var synthNPC = new Tone.Synth({
     }
 }).toMaster();
 
+var synthNPC2 = new Tone.Synth({
+    "oscillator": {
+        "type": "sine"
+    },
+    "envelope": {
+        "attack": 3,
+        "decay": 1,
+        "sustain": 1,
+        "release": 3
+    }
+}).toMaster();
+
 var synthMetro = new Tone.Synth({
     "oscillator": {
         "type": "sine"
@@ -333,7 +345,7 @@ function update() {
             }
 
             // Make some noise
-            // synthNPC.setNote(currGoal == "left" ? "F4" : "G4");
+            synthNPC2.triggerAttack(currGoal == "left" ? "Ab3" : "G3");
         }
     }
     else if (playerHasReachedGoal) {
@@ -360,6 +372,7 @@ function update() {
         if (Tone.Transport.seconds - lastTagTime > 4) {
             didTagJustHappen = false;
             synthNPC.triggerRelease();
+            synthNPC2.triggerRelease();
             console.log("released");
         }
     }
