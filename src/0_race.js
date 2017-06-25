@@ -91,8 +91,10 @@ var loop = new Tone.Loop(function(time) {
 
 loop.start(0);
 
+
+var transportOffset = 2;
 Tone.Transport.bpm.value = 60;
-Tone.Transport.start(0);
+Tone.Transport.start(transportOffset);
 
 // ---- Synchronization variables and functions ----
 var currBeatTime = 0;
@@ -102,7 +104,10 @@ var currBeatClicked = false;
 
 function updateSync() {
     var clickTime = Tone.Transport.seconds;
-    var timeDiff = Math.abs(clickTime - currBeatTime);
+    if (clickTime < transportOffset) {
+        return;
+    }
+    var timeDiff = Math.abs(clickTime - currBeatTime + transportOffset);
     var beatDuration = (60.0 / Tone.Transport.bpm.value) * (Tone.Transport.timeSignature / 4.0); // in seconds
     console.log("click: ", clickTime, "currBeat: ", currBeatTime);
 
