@@ -27,3 +27,9 @@ a {
 .pre_links_padding {
     margin-bottom: 30px;
 }
+
+.more_soon {
+    margin-top: 30px;
+    font-size: 75%;
+    /*text-align: center;*/
+}
