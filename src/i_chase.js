@@ -263,24 +263,16 @@ function moveAwayFromObject(displayObject, destination, speed, maxTime) {
     var weightMax = 0.5;
     var weightRest = 1 - weightMax;
     var weights = [0.4, 0.3, 0.2, 0.075, 0.025]; // Make sure these add up to 1
-    weights = [1, 0, 0, 0, 0];
-    weights = [3, 2, 1, 0.5, 0.25];
-    weights = [3, 1, 0.5, 0, 0];
+    weights = [1, 0, 0, 0, 0]; // Nah
+    // weights = [3, 2, 1, 0.5, 0.25];
+    // weights = [3, 1, 0.5, 0, 0];
+    // weights = [2, 1, 0.5, 0.5, 0];
 
     if (maxTime > 0)
     {
         //  We know how many pixels we need to move, but how fast?
         speed = this.distanceBetween(displayObject, destination) / (maxTime / 1000);
     }
-
-    // Trying to get around getting stuck in a corner...
-    // var worldBoundsThreshold = 25;
-    // if (Math.abs(displayObject.position.x - game.world.bounds.x) < worldBoundsThreshold
-    //     || Math.abs(displayObject.position.x - game.world.bounds.width) < worldBoundsThreshold)
-    // {
-    //     angleDestination = Math.random() * 3.14;
-    //     console.log("eyy");
-    // }
 
     displayObject.body.velocity.x = 0;
     displayObject.body.velocity.y = 0;
@@ -290,6 +282,26 @@ function moveAwayFromObject(displayObject, destination, speed, maxTime) {
 
         displayObject.body.velocity.x += Math.cos(angle) * speed * weight * -1;
         displayObject.body.velocity.y += Math.sin(angle) * speed * weight * -1;
+    }
+
+    // Trying to get around getting stuck in a corner...
+    // Add some velocity to move away!
+    var worldBoundsThreshold = 25;
+    if (Math.abs(displayObject.position.x - game.world.bounds.x) < worldBoundsThreshold)
+    {
+        displayObject.body.velocity.x += speed;
+    }
+    else if (Math.abs(displayObject.position.x - game.world.bounds.width) < worldBoundsThreshold)
+    {
+        displayObject.body.velocity.x += speed * -1;
+    }
+    if (Math.abs(displayObject.position.y - game.world.bounds.y) < worldBoundsThreshold)
+    {
+        displayObject.body.velocity.y += speed;
+    }
+    else if (Math.abs(displayObject.position.y - game.world.bounds.height) < worldBoundsThreshold)
+    {
+        displayObject.body.velocity.y += speed * -1;
     }
 
 
