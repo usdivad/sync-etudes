@@ -196,13 +196,31 @@ function updateCircleP1(isClicked) {
 }
 
 // Based on Phaser.Physics.ARCADE.moveToObject.distanceToXY
-function distanceToXY(displayObject, x, y) {
+// function distanceToXY(displayObject, x, y) {
+//     var dx = displayObject.x - x;
+//     var dy = displayObject.y - y;
 
-    var dx = displayObject.x - x;
-    var dy = displayObject.y - y;
+//     return Math.sqrt(dx * dx + dy * dy);
+// }
 
-    return Math.sqrt(dx * dx + dy * dy);
-}
+// // Based on Phaser.Physics.ARCADE.moveToObject.moveToXY
+// function moveToXY(displayObject, x, y, speed, maxTime) {
+//     if (speed === undefined) { speed = 60; }
+//     if (maxTime === undefined) { maxTime = 0; }
+
+//     var angle = Math.atan2(y - displayObject.y, x - displayObject.x);
+
+//     if (maxTime > 0)
+//     {
+//         //  We know how many pixels we need to move, but how fast?
+//         speed = this.distanceToXY(displayObject, x, y) / (maxTime / 1000);
+//     }
+
+//     displayObject.body.velocity.x = Math.cos(angle) * speed;
+//     displayObject.body.velocity.y = Math.sin(angle) * speed;
+
+//     return angle;
+// }
 
 // Based on Phaser.Physics.ARCADE.moveToObject
 var awayPrevPos = [0, 0];
@@ -210,8 +228,11 @@ function moveAwayFromObject(displayObject, destination, speed, maxTime) {
     if (speed === undefined) { speed = 60; }
     if (maxTime === undefined) { maxTime = 0; }
 
-    // Angles
     var angleDestination = Math.atan2(destination.y - displayObject.y, destination.x - displayObject.x);
+
+    // Taking into account distances and angles for corners in addition to destination object
+    /*
+    // Angles
     var angleCornerTopLeft = Math.atan2(game.world.bounds.y - displayObject.y, game.world.bounds.x - displayObject.x);
     var angleCornerTopRight = Math.atan2(game.world.bounds.y - displayObject.y, game.world.bounds.width - displayObject.x);
     var angleCornerBottomLeft = Math.atan2(game.world.bounds.height - displayObject.y, game.world.bounds.x - displayObject.x);
@@ -220,11 +241,11 @@ function moveAwayFromObject(displayObject, destination, speed, maxTime) {
     // angles.sort();
 
     // Distances
-    var distDestination = distanceToXY(displayObject, destination.x, destination.y);
-    var distCornerTopLeft = distanceToXY(displayObject, game.world.bounds.x, game.world.bounds.y);
-    var distCornerTopRight = distanceToXY(displayObject, game.world.bounds.width, game.world.bounds.y);
-    var distCornerBottomLeft = distanceToXY(displayObject, game.world.bounds.x, game.world.bounds.height);
-    var distCornerBottomRight = distanceToXY(displayObject, game.world.bounds.width, game.world.bounds.height);
+    var distDestination = game.physics.arcade.distanceToXY(displayObject, destination.x, destination.y);
+    var distCornerTopLeft = game.physics.arcade.distanceToXY(displayObject, game.world.bounds.x, game.world.bounds.y);
+    var distCornerTopRight = game.physics.arcade.distanceToXY(displayObject, game.world.bounds.width, game.world.bounds.y);
+    var distCornerBottomLeft = game.physics.arcade.distanceToXY(displayObject, game.world.bounds.x, game.world.bounds.height);
+    var distCornerBottomRight = game.physics.arcade.distanceToXY(displayObject, game.world.bounds.width, game.world.bounds.height);
 
     // Put all targets together
     var allTargets = [
@@ -304,15 +325,24 @@ function moveAwayFromObject(displayObject, destination, speed, maxTime) {
         displayObject.body.velocity.y += speed * -1;
     }
 
+    // Move towards center
+    // if (Math.abs(displayObject.position.x - game.world.bounds.x) < worldBoundsThreshold
+    //     || Math.abs(displayObject.position.x - game.world.bounds.width) < worldBoundsThreshold
+    //     || Math.abs(displayObject.position.y - game.world.bounds.y) < worldBoundsThreshold
+    //     || Math.abs(displayObject.position.y - game.world.bounds.height) < worldBoundsThreshold)
+    // {
+    //     moveToXY(displayObject, game.world.centerX, game.world.centerY);
+    // }
 
     // displayObject.body.velocity.x = Math.cos(angleDestination) * speed * -1;
     // displayObject.body.velocity.y = Math.sin(angleDestination) * speed * -1;
 
     console.log("away: speed=" + speed + ", angle=" + angleDestination);
+    */
 
     // Original velocity setting
-    // displayObject.body.velocity.x = Math.cos(angleDestination) * speed * -1;
-    // displayObject.body.velocity.y = Math.sin(angleDestination) * speed * -1;
+    displayObject.body.velocity.x = Math.cos(angleDestination) * speed * -1;
+    displayObject.body.velocity.y = Math.sin(angleDestination) * speed * -1;
 
     return angleDestination;
 }
@@ -455,15 +485,31 @@ function update() {
     // Move NPC sprite towards player
     // (but move away if either it's running away OR if tag just happened and it's about to chase; give player some room)
     if (isNPCChasingPlayer && !didTagJustHappen) {
+        // game.world.wrap(spriteNPC, 0, true);
+        // spriteNPC.body.collideWorldBounds = false;
+
         game.physics.arcade.moveToObject(spriteNPC, sprite, spriteNPCVel);
     }
-    else {
-        if (isNPCChasingPlayer) {
-            moveAwayFromObject(spriteNPC, sprite, spriteNPCVel*2);
+    else if (isNPCChasingPlayer && didTagJustHappen) {
+        // game.world.wrap(spriteNPC, 0, false);
+        // spriteNPC.body.collideWorldBounds = true;
+        var spriteNPCVelMultiplier = 2;
+        var distToCenterThreshold = Math.min(game.world.bounds.width, game.world.bounds.height)*0.25;
+        var distToCenter = game.physics.arcade.distanceToXY(spriteNPC, game.world.centerX, game.world.centerY);
+        console.log("distToCenterThreshold=" + distToCenterThreshold);
+
+        if (distToCenter > distToCenterThreshold) {
+            // spriteNPCVel = spriteVelMax * ((distToCenter / distToCenterThreshold));
+            game.physics.arcade.moveToXY(spriteNPC, game.world.centerX, game.world.centerY, spriteNPCVel * spriteNPCVelMultiplier);
+            console.log("yay");
         }
         else {
-            moveAwayFromObject(spriteNPC, sprite, spriteNPCVel);
+            moveAwayFromObject(spriteNPC, sprite, spriteNPCVel * spriteNPCVelMultiplier);
+            console.log("nay");
         }
+    }
+    else { // NPC is not chasing player
+        moveAwayFromObject(spriteNPC, sprite, spriteNPCVel);
     }
 
     // Trying out wrapping
