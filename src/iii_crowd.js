@@ -13,6 +13,8 @@ var activeInputPreviouslyDown = false;
 var spriteVelMax = 120;
 var spriteVel = 0;
 
+var npcs = [];
+
 var circleNPC;
 var spriteNPC;
 var spriteNPCVelMax = spriteVelMax * 0.5;
@@ -347,6 +349,22 @@ function moveAwayFromObject(displayObject, destination, speed, maxTime) {
     return angleDestination;
 }
 
+function createNPC(x, y) {
+    circleNPC = game.add.graphics(0, 0);
+    circleNPC.beginFill(0x888888, 1);
+    circleNPC.drawCircle(0, 0, 55);
+    spriteNPC = game.add.sprite(x, y);
+    spriteNPC.addChild(circleNPC);
+    spriteNPC.anchor.set(0.5);
+    game.physics.arcade.enable(spriteNPC);
+    spriteNPC.body.collideWorldBounds = true;
+    spriteNPC.body.setSize(50, 50);
+    npcs.push({
+        "circle": circleNPC,
+        "sprite": spriteNPC
+    });
+}
+
 // ---- Phaser preload/create/update/render functions ----
 function preload() {
     // game.load.image("name", "path");
@@ -376,15 +394,7 @@ function create() {
     sprite.body.setSize(50, 50);
 
     // Create NPC
-    circleNPC = game.add.graphics(0, 0);
-    circleNPC.beginFill(0x888888, 1);
-    circleNPC.drawCircle(0, 0, 55);
-    spriteNPC = game.add.sprite(game.world.centerX - 100, game.world.centerY - 100);
-    spriteNPC.addChild(circleNPC);
-    spriteNPC.anchor.set(0.5);
-    game.physics.arcade.enable(spriteNPC);
-    spriteNPC.body.collideWorldBounds = true;
-    spriteNPC.body.setSize(50, 50);
+    createNPC(game.world.centerX - 100, game.world.centerY - 100);
 
     // Pause button
     pauseButton = game.add.text(game.world.width-60, 10, "pause", {font: "16px Arial", fill: "#888"});
