@@ -544,8 +544,8 @@ function update() {
                 noteP1 = notesP1Perfect[noteP1Idx];
             }
 
-            synthP1.triggerAttack(noteP1);
-            // synthP1.triggerAttackRelease(noteP1, "16n", "+0.1");
+            // synthP1.triggerAttack(noteP1);
+            synthP1.triggerAttackRelease(noteP1, "16n", "+0.1");
 
             // Synchronization stuff
             if (!currBeatClicked) {
