@@ -1,2 +1,6 @@
 .DS_Store
 notes.txt
+diff.txt
+gitdiff.txt
+
+lib/jquery-3.2.1.min.js
