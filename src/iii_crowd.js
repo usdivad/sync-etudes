@@ -14,9 +14,8 @@ var spriteVelMax = 120;
 var spriteVel = 0;
 
 var npcs = [];
-
-var circleNPC;
-var spriteNPC;
+//var circleNPC;
+//var spriteNPC;
 var spriteNPCVelMax = spriteVelMax * 0.5;
 var spriteNPCVel = 0;
 
@@ -71,7 +70,7 @@ var synthMetro = new Tone.Synth({
 
 var loop = new Tone.Loop(function(time) {
     // Play metronome
-    var noteMetro = isNPCChasingPlayer ? "G2" : "C3";
+    var noteMetro = isNPCChasingPlayer ? "F#2" : "C3";
     synthMetro.triggerAttackRelease(noteMetro, "8n", time);
 
     // Draw metronome
@@ -350,10 +349,11 @@ function moveAwayFromObject(displayObject, destination, speed, maxTime) {
 }
 
 function createNPC(x, y) {
-    circleNPC = game.add.graphics(0, 0);
+    var circleNPC = game.add.graphics(0, 0);
     circleNPC.beginFill(0x888888, 1);
-    circleNPC.drawCircle(0, 0, 55);
-    spriteNPC = game.add.sprite(x, y);
+    circleNPC.drawCircle(0, 0, 25);
+
+    var spriteNPC = game.add.sprite(x, y);
     spriteNPC.addChild(circleNPC);
     spriteNPC.anchor.set(0.5);
     game.physics.arcade.enable(spriteNPC);
@@ -449,15 +449,30 @@ function update() {
     // }
 
     // See if player and NPC have caught each other, and if so "you're it!"
-    if (game.physics.arcade.distanceBetween(sprite, spriteNPC) < 40)
-    // if (game.physics.arcade.overlap(sprite, spriteNPC))
-    {
-        if (!didTagJustHappen) {
-            isNPCChasingPlayer = !isNPCChasingPlayer;
-            didTagJustHappen = true;
-            lastTagTime = Tone.Transport.seconds;
+    for (var i=0; i<npcs.length; i++) {
+        var spriteNPC = npcs[i]["sprite"];
+        if (game.physics.arcade.distanceBetween(sprite, spriteNPC) < 40)
+        {
+            if (!didTagJustHappen) {
+                // isNPCChasingPlayer = !isNPCChasingPlayer;
+                didTagJustHappen = true;
+                lastTagTime = Tone.Transport.seconds;
+
+                // Create new NPC
+                createNPC(Math.random() * (game.world.width - 50), Math.random() * (game.world.height - 50)); 
+            }
         }
     }
+
+    // if (game.physics.arcade.distanceBetween(sprite, spriteNPC) < 40)
+    // // if (game.physics.arcade.overlap(sprite, spriteNPC))
+    // {
+    //     if (!didTagJustHappen) {
+    //         isNPCChasingPlayer = !isNPCChasingPlayer;
+    //         didTagJustHappen = true;
+    //         lastTagTime = Tone.Transport.seconds;
+    //     }
+    // }
 
     // Move player and NPC depending on whether or not tag just happened
     if (didTagJustHappen) {
@@ -475,13 +490,14 @@ function update() {
         // game.physics.arcade.moveToPointer(sprite, spriteVel, game.input.activePointer);
 
         // Play a tone to signify tag
-        synthTag.triggerAttack("E3");
+        synthTag.triggerAttack("F#3");
 
         // Release the tag lock if necessary
         if (Tone.Transport.seconds - lastTagTime > 4) {
             didTagJustHappen = false;
             synthTag.triggerRelease();
         }
+
     }
 
     // Move player sprite towards pointer at given velocity
@@ -498,28 +514,39 @@ function update() {
         // game.world.wrap(spriteNPC, 0, true);
         // spriteNPC.body.collideWorldBounds = false;
 
-        game.physics.arcade.moveToObject(spriteNPC, sprite, spriteNPCVel);
+        for (var i=0; i<npcs.length; i++) {
+            var spriteNPC = npcs[i]["sprite"];
+            game.physics.arcade.moveToObject(spriteNPC, sprite, spriteNPCVel);
+        }
     }
     else if (isNPCChasingPlayer && didTagJustHappen) {
         // game.world.wrap(spriteNPC, 0, false);
         // spriteNPC.body.collideWorldBounds = true;
         var spriteNPCVelMultiplier = 2;
         var distToCenterThreshold = Math.min(game.world.bounds.width, game.world.bounds.height)*0.25;
-        var distToCenter = game.physics.arcade.distanceToXY(spriteNPC, game.world.centerX, game.world.centerY);
-        console.log("distToCenterThreshold=" + distToCenterThreshold);
 
-        if (distToCenter > distToCenterThreshold) {
-            // spriteNPCVel = spriteVelMax * ((distToCenter / distToCenterThreshold));
-            game.physics.arcade.moveToXY(spriteNPC, game.world.centerX, game.world.centerY, spriteNPCVel * spriteNPCVelMultiplier);
-            console.log("yay");
-        }
-        else {
-            moveAwayFromObject(spriteNPC, sprite, spriteNPCVel * spriteNPCVelMultiplier);
-            console.log("nay");
+        for (var i=0; i<npcs.length; i++) {
+            var spriteNPC = npcs[i]["sprite"];
+
+            var distToCenter = game.physics.arcade.distanceToXY(spriteNPC, game.world.centerX, game.world.centerY);
+            console.log("distToCenterThreshold=" + distToCenterThreshold);
+
+            if (distToCenter > distToCenterThreshold) {
+                // spriteNPCVel = spriteVelMax * ((distToCenter / distToCenterThreshold));
+                game.physics.arcade.moveToXY(spriteNPC, game.world.centerX, game.world.centerY, spriteNPCVel * spriteNPCVelMultiplier);
+                console.log("yay");
+            }
+            else {
+                moveAwayFromObject(spriteNPC, sprite, spriteNPCVel * spriteNPCVelMultiplier);
+                console.log("nay");
+            }
         }
     }
     else { // NPC is not chasing player
-        moveAwayFromObject(spriteNPC, sprite, spriteNPCVel);
+        for (var i=0; i<npcs.length; i++) {
+            var spriteNPC = npcs[i]["sprite"];
+            moveAwayFromObject(spriteNPC, sprite, spriteNPCVel);
+        }
     }
 
     // Trying out wrapping
