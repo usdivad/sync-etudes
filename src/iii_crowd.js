@@ -530,9 +530,12 @@ function update() {
             var spriteNPC = npcs[i]["sprite"];
             var distToCenter = game.physics.arcade.distanceToXY(spriteNPC, game.world.centerX, game.world.centerY);
             var distToPlayer = game.physics.arcade.distanceToXY(spriteNPC, sprite.x, sprite.y);
+            var forceMoveToCenter = Math.random() > 0.5;
+            forceMoveToCenter = false;
+
             console.log("tag just happened: " + i + "::distToCenterThreshold=" + distToCenterThreshold);
 
-            if (distToCenter > distToCenterThreshold /*&& distToPlayer > distToPlayerThreshold*/) {
+            if (distToCenter > distToCenterThreshold || forceMoveToCenter /*&& distToPlayer > distToPlayerThreshold*/) {
                 // spriteNPCVel = spriteVelMax * ((distToCenter / distToCenterThreshold));
                 game.physics.arcade.moveToXY(spriteNPC, game.world.centerX, game.world.centerY, spriteNPCVel * spriteNPCVelMultiplier);
                 console.log("yay");
