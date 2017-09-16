@@ -519,19 +519,20 @@ function update() {
             game.physics.arcade.moveToObject(spriteNPC, sprite, spriteNPCVel);
         }
     }
-    else if (isNPCChasingPlayer && didTagJustHappen) {
+    else if (/*isNPCChasingPlayer && */ didTagJustHappen) {
         // game.world.wrap(spriteNPC, 0, false);
         // spriteNPC.body.collideWorldBounds = true;
         var spriteNPCVelMultiplier = 2;
         var distToCenterThreshold = Math.min(game.world.bounds.width, game.world.bounds.height)*0.25;
+        var distToPlayerThreshold = 75;
 
         for (var i=0; i<npcs.length; i++) {
             var spriteNPC = npcs[i]["sprite"];
-
             var distToCenter = game.physics.arcade.distanceToXY(spriteNPC, game.world.centerX, game.world.centerY);
-            console.log("distToCenterThreshold=" + distToCenterThreshold);
+            var distToPlayer = game.physics.arcade.distanceToXY(spriteNPC, sprite.x, sprite.y);
+            console.log("tag just happened: " + i + "::distToCenterThreshold=" + distToCenterThreshold);
 
-            if (distToCenter > distToCenterThreshold) {
+            if (distToCenter > distToCenterThreshold /*&& distToPlayer > distToPlayerThreshold*/) {
                 // spriteNPCVel = spriteVelMax * ((distToCenter / distToCenterThreshold));
                 game.physics.arcade.moveToXY(spriteNPC, game.world.centerX, game.world.centerY, spriteNPCVel * spriteNPCVelMultiplier);
                 console.log("yay");
@@ -545,7 +546,19 @@ function update() {
     else { // NPC is not chasing player
         for (var i=0; i<npcs.length; i++) {
             var spriteNPC = npcs[i]["sprite"];
-            moveAwayFromObject(spriteNPC, sprite, spriteNPCVel);
+            // moveAwayFromObject(spriteNPC, sprite, spriteNPCVel);
+            
+            // console.log("moving npc #" + i);
+
+            if (distToCenter > distToCenterThreshold /*&& distToPlayer > distToPlayerThreshold*/) {
+                // spriteNPCVel = spriteVelMax * ((distToCenter / distToCenterThreshold));
+                game.physics.arcade.moveToXY(spriteNPC, game.world.centerX, game.world.centerY, spriteNPCVel * spriteNPCVelMultiplier);
+                // console.log("yay");
+            }
+            else {
+                moveAwayFromObject(spriteNPC, sprite, spriteNPCVel);
+                // console.log("nay");
+            }
         }
     }
 
